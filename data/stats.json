@@ -1,4 +1,12 @@
 {
-  "total_plays": 0,
-  "last_updated": "pending"
+  "total_plays": 1,
+  "plays_with_showtimes": 0,
+  "plays_without_showtimes": 1,
+  "categories": {
+    "Tiyatro": 1
+  },
+  "sources": {
+    "biletinial": 1
+  },
+  "last_updated": "2025-12-14T19:19:46.129535"
 }
