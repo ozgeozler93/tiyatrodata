@@ -35,3 +35,6 @@ python main.py
 ## 📱 İlgili Proje
 
 - [tiyatro-gunlugu-app](https://github.com/ozgeozler93/tiyatro-gunlugu-app)
+
+
+<!-- trigger -->

@@ -86,8 +86,7 @@ def parse_event_card(card) -> dict:
     event['detail_url'] = link
     event['source'] = 'biletinial'
     
-    title = card.select_one('.title, .name, h3, h4, [class*="title"]')
-    event['title'] = title.get_text(strip=True) if title else ""
+    event['title'] = ""
     
     img = card.select_one('img')
     if img:
@@ -128,8 +127,12 @@ def get_event_details(event_url: str) -> dict:
     }
     
     try:
-        title = soup.select_one('h1, .event-title, [class*="title"]')
-        details['title'] = title.get_text(strip=True) if title else ""
+        meta_title = soup.find("meta", property="og:title")
+        if meta_title and meta_title.get("content"):
+            details["title"] = meta_title["content"].replace(" - Tiyatro", "").strip()
+        else:
+            details["title"] = ""
+
         
         img = soup.select_one('.event-image img, .poster img, [class*="gorsel"] img')
         if img:
