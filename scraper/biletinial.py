@@ -12,6 +12,8 @@ import time
 
 BASE_URL = "https://biletinial.com"
 THEATER_URL = f"{BASE_URL}/tr-tr/tiyatro"
+MAX_EVENTS = 150
+
 
 HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -161,11 +163,11 @@ def scrape_istanbul_theater() -> list:
     print(f"📋 Toplam {len(events)} etkinlik bulundu")
     
     detailed_events = []
-    for i, event in enumerate(events, 1):
+    for i, event in enumerate(events[:MAX_EVENTS], 1):
         if not event.get('detail_url'):
             continue
             
-        print(f"🔍 [{i}/{len(events)}] {event.get('title', 'Bilinmeyen')}...")
+        print(f"🔍 [{i}/{len(events)}] {event['detail_url']}")
         
         details = get_event_details(event['detail_url'])
         if details:
