@@ -131,8 +131,8 @@ def get_event_details(event_url: str) -> dict:
         if meta_title and meta_title.get("content"):
             details["title"] = meta_title["content"].replace(" - Tiyatro", "").strip()
         else:
-            details["title"] = ""
-
+            h1 = soup.select_one("h1")
+            details["title"] = h1.get_text(strip=True) if h1 else ""
         
         img = soup.select_one('.event-image img, .poster img, [class*="gorsel"] img')
         if img:
@@ -159,6 +159,8 @@ def get_event_details(event_url: str) -> dict:
         
     except Exception as e:
         print(f"⚠️ Detay işlenirken hata: {event_url} - {e}")
+
+    
     
     return details
 
@@ -210,7 +212,11 @@ def scrape_istanbul_theater() -> list:
         
         details = get_event_details(event['detail_url'])
         if details:
-            details.update({k: v for k, v in event.items() if k not in details or not details[k]})
+            for k, v in event.items():
+                if k == "title":
+                    continue  # title sadece detaydan gelsin
+                if k not in details or not details[k]:
+                    details[k] = v
             detailed_events.append(details)
         
         time.sleep(1)
