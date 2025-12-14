@@ -13,6 +13,13 @@
 
 GitHub Actions ile her gün **saat 09:00 (TR)** otomatik güncellenir.
 
+## 🔒 Veri Modeli (Stabil)
+
+`data/plays.json` dosyası aşağıdaki alanları garanti eder.
+Alan adları **geriye dönük uyumluluk korunarak** değiştirilir.
+
+Detaylı şema: `data/schema.json`
+
 ## 📥 Veri Kullanımı (iOS App için)
 ```
 https://raw.githubusercontent.com/ozgeozler93/tiyatrodata/main/data/plays.json
