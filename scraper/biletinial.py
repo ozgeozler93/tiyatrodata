@@ -32,86 +32,43 @@ def get_soup(url: str) -> BeautifulSoup:
 
 
 def get_theater_events(city: str = "istanbul") -> list:
-    """Belirli bir şehirdeki tiyatro etkinliklerini çeker."""
     events = []
-    page = 1
-    max_pages = 10
-    
-    while page <= max_pages:
+    seen_links = set()
+
+    for page in range(1, 11):
         url = f"{THEATER_URL}?city={city}&page={page}"
         print(f"📄 Sayfa {page} çekiliyor...")
-        
+
         soup = get_soup(url)
         if not soup:
             break
-        
-        event_cards = soup.select('.event-card, .card, [class*="etkinlik"], [data-event]')
-        
-        if not event_cards:
-            event_cards = soup.select('a[href*="/tiyatro/"], a[href*="/etkinlik/"]')
-        
-        if not event_cards:
-            print(f"⚠️ Sayfa {page}'de etkinlik bulunamadı, durduruluyor")
-            break
-        
-        print(f"  → {len(event_cards)} etkinlik bulundu")
-        
-        for card in event_cards:
-            try:
-                event = parse_event_card(card)
-                if event and event.get('title'):
-                    events.append(event)
-            except Exception as e:
-                print(f"⚠️ Kart işlenirken hata: {e}")
+
+        links = soup.select('a[href^="/tr-tr/tiyatro/"]')
+
+        print(f"  → {len(links)} link bulundu")
+
+        for a in links:
+            href = a.get("href")
+            if not href:
                 continue
-        
-        page += 1
+
+            full_url = BASE_URL + href
+            if full_url in seen_links:
+                continue
+
+            seen_links.add(full_url)
+            events.append({
+                "detail_url": full_url,
+                "source": "biletinial"
+            })
+
         time.sleep(1)
-    
+
+    print(f"📋 Toplam {len(events)} benzersiz etkinlik linki bulundu")
     return events
 
 
-def parse_event_card(card) -> dict:
-    """Etkinlik kartından bilgi çıkarır."""
-    event = {}
-    
-    link = card.get('href') if card.name == 'a' else None
-    if not link:
-        link_elem = card.select_one('a')
-        link = link_elem.get('href') if link_elem else None
-    
-    if link and not link.startswith('http'):
-        link = BASE_URL + link
-    
-    event['detail_url'] = link
-    event['source'] = 'biletinial'
-    
-    event['title'] = ""
-    
-    img = card.select_one('img')
-    if img:
-        img_url = img.get('src') or img.get('data-src') or img.get('data-lazy')
-        if img_url and not img_url.startswith('http'):
-            img_url = BASE_URL + img_url
-        event['image_url'] = img_url
-    
-    date = card.select_one('.date, [class*="tarih"], [class*="date"]')
-    if date:
-        event['next_date'] = date.get_text(strip=True)
-    
-    venue = card.select_one('.venue, .location, [class*="mekan"], [class*="venue"]')
-    if venue:
-        event['venue'] = venue.get_text(strip=True)
-    
-    price = card.select_one('.price, [class*="fiyat"], [class*="price"]')
-    if price:
-        event['price'] = price.get_text(strip=True)
-    
-    category = card.select_one('.category, .genre, [class*="tur"], [class*="kategori"]')
-    if category:
-        event['category'] = category.get_text(strip=True)
-    
-    return event
+
 
 
 def get_event_details(event_url: str) -> dict:
