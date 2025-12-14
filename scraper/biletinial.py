@@ -190,7 +190,7 @@ def scrape_istanbul_theater() -> list:
     print(f"📋 Toplam {len(events)} etkinlik bulundu")
     
     detailed_events = []
-    for i, event in enumerate(events, 1):
+    for i, event in enumerate(events[:MAX_EVENTS], 1):
         if not event.get('detail_url'):
             continue
             
