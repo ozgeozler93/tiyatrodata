@@ -226,9 +226,12 @@ def scrape_istanbul_theater() -> list:
 
 
 if __name__ == "__main__":
-    events = scrape_istanbul_theater()
-    
-    with open('biletinial.json', 'w', encoding='utf-8') as f:
+    import os
+
+    OUTPUT_PATH = "data/plays.json"
+    os.makedirs("data", exist_ok=True)
+
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(events, f, ensure_ascii=False, indent=2)
-    
-    print(f"💾 biletinial.json dosyasına kaydedildi")
+
+    print(f"💾 {OUTPUT_PATH} dosyasına kaydedildi")
