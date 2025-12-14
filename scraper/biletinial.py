@@ -7,7 +7,6 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import json
-import re
 import time
 
 BASE_URL = "https://biletinial.com"
@@ -70,6 +69,20 @@ def get_theater_events(city: str = "istanbul") -> list:
     return events
 
 
+def is_valid_event(title, category):
+    BLOCKLIST = [
+        "konser", "stand-up", "stand up", "workshop",
+        "festival", "atölye", "çocuk"
+    ]
+
+    text = f"{title} {category}".lower()
+
+    for word in BLOCKLIST:
+        if word in text:
+            return False
+
+    return True
+
 
 
 
@@ -110,18 +123,32 @@ def get_event_details(event_url: str) -> dict:
         if duration:
             details['duration'] = duration.get_text(strip=True)
         
-        details['dates_and_locations'] = parse_biletinial_showtimes(soup)
-        
+
+
         venue = soup.select_one('.venue-name, [class*="mekan"]')
         if venue:
             details['venue'] = venue.get_text(strip=True)
         
+        details['dates_and_locations'] = parse_biletinial_showtimes(soup)
+
+        if not details['dates_and_locations']:
+            return None
+        
+        if not details.get("title") or not details.get("venue"):
+            return None
+        
+
+        if not is_valid_event(details.get("title", ""), details.get("category", "")):
+            return None
+
     except Exception as e:
         print(f"⚠️ Detay işlenirken hata: {event_url} - {e}")
 
     
     
     return details
+
+
 
 
 def parse_biletinial_showtimes(soup: BeautifulSoup) -> list:
@@ -163,7 +190,7 @@ def scrape_istanbul_theater() -> list:
     print(f"📋 Toplam {len(events)} etkinlik bulundu")
     
     detailed_events = []
-    for i, event in enumerate(events[:MAX_EVENTS], 1):
+    for i, event in enumerate(events, 1):
         if not event.get('detail_url'):
             continue
             
@@ -178,7 +205,7 @@ def scrape_istanbul_theater() -> list:
                     details[k] = v
             detailed_events.append(details)
         
-        time.sleep(1)
+        time.sleep(0.3)
     
     print(f"✅ {len(detailed_events)} etkinlik detayı başarıyla çekildi")
     return detailed_events
@@ -190,7 +217,9 @@ if __name__ == "__main__":
     OUTPUT_PATH = "data/plays.json"
     os.makedirs("data", exist_ok=True)
 
+    events = scrape_istanbul_theater()
+
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(events, f, ensure_ascii=False, indent=2)
 
-    print(f"💾 {OUTPUT_PATH} dosyasına kaydedildi")
+    print(f"💾 {OUTPUT_PATH} dosyasına kaydedildi ({len(events)} kayıt)")
