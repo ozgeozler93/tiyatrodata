@@ -1,0 +1,20 @@
+{
+  "id": "string",
+  "title": "string",
+  "category": "string",
+  "image_url": "string",
+  "detail_url": "string",
+  "summary": "string",
+  "crew": "object",
+  "duration": "string",
+  "act_count": "string",
+  "dates_and_locations": [
+    {
+      "date": "string",
+      "location": "string"
+    }
+  ],
+  "venue": "string",
+  "source": "string",
+  "scraped_at": "ISO-8601 string"
+}
